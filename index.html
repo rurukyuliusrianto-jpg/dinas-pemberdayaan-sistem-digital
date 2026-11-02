@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Arsip & Absensi - Kantor Dinas Pemberdayaan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- HALAMAN LOGIN -->
+    <div id="loginPage" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-800 to-emerald-900">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-landmark text-4xl text-green-700 mb-2"></i>
+                <h2 class="text-2xl font-bold text-gray-800">E-Arsip & Absensi</h2>
+                <p class="text-sm text-gray-500">Kantor Dinas Pemberdayaan</p>
+            </div>
+            
+            <div id="loginError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded">
+                Username atau Password salah!
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                    <input type="text" id="username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Masukkan username" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                    <input type="password" id="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Aplikasi
+                </button>
+            </form>
+
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600 border">
+                <p class="font-bold text-gray-700 mb-1"><i class="fa-solid fa-circle-info mr-1 text-green-600"></i> Akun Login Default:</p>
+                <p>• Admin: <span class="font-mono text-gray-800">admin_dinas</span> / <span class="font-mono text-gray-800">pemberdayaan2026</span></p>
+                <p>• Staf: <span class="font-mono text-gray-800">staf_arsip</span> / <span class="font-mono text-gray-800">arsipdinas</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN UTAMA / DASHBOARD -->
+    <div id="appPage" class="hidden min-h-screen flex flex-col">
+        <!-- Navbar -->
+        <nav class="bg-green-800 text-white shadow-md">
+            <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-landmark text-2xl text-yellow-400"></i>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Kantor Dinas Pemberdayaan</h1>
+                        <p class="text-xs text-green-200">Sistem Pengarsipan & Daftar Hadir Digital</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userInfo" class="text-sm bg-green-700 px-3 py-1 rounded-full"></span>
+                    <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Content Body -->
+        <div class="container mx-auto px-6 py-6 flex-grow">
+            
+            <!-- Statistik Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Surat Masuk</p>
+                        <h3 id="countMasuk" class="text-2xl font-bold text-gray-800">0</h3>
+                    </div>
+                    <i class="fa-solid fa-envelope text-3xl text-blue-500"></i>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-amber-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Surat Keluar</p>
+                        <h3 id="countKeluar" class="text-2xl font-bold text-gray-800">0</h3>
+                    </div>
+                    <i class="fa-solid fa-paper-plane text-3xl text-amber-500"></i>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-green-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Seluruh Arsip</p>
+                        <h3 id="countTotal" class="text-2xl font-bold text-gray-800">0</h3>
+                    </div>
+                    <i class="fa-solid fa-folder-open text-3xl text-green-500"></i>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow border-l-4 border-purple-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Kehadiran Hari Ini</p>
+                        <h3 id="countHadir" class="text-2xl font-bold text-gray-800">0</h3>
+                    </div>
+                    <i class="fa-solid fa-clipboard-user text-3xl text-purple-500"></i>
+                </div>
+            </div>
+
+            <!-- Tab Navigasi & Tombol Aksi -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div class="flex space-x-2 bg-white p-1 rounded-lg shadow">
+                    <button onclick="switchTab('masuk')" id="tabMasukBtn" class="px-4 py-2 rounded-lg font-medium text-sm transition bg-green-700 text-white">
+                        <i class="fa-solid fa-inbox mr-2"></i> Surat Masuk
+                    </button>
+                    <button onclick="switchTab('keluar')" id="tabKeluarBtn" class="px-4 py-2 rounded-lg font-medium text-sm transition text-gray-600 hover:bg-gray-100">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> Surat Keluar
+                    </button>
+                    <button onclick="switchTab('absen')" id="tabAbsenBtn" class="px-4 py-2 rounded-lg font-medium text-sm transition text-gray-600 hover:bg-gray-100">
+                        <i class="fa-solid fa-clipboard-user mr-2"></i> Daftar Hadir
+                    </button>
+                </div>
+                <div id="actionBtnContainer">
+                    <button onclick="openModalSurat()" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Surat Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABEL DOKUMEN SURAT -->
+            <div id="sectionSurat" class="bg-white rounded-xl shadow overflow-hidden">
+                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 id="tableTitle" class="font-bold text-gray-700">Daftar Surat Masuk</h3>
+                    <input type="text" id="searchKeyword" onkeyup="renderTableSurat()" placeholder="Cari nomor/perihal..." class="px-3 py-1 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-600 w-64">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+                                <th class="p-3">No</th>
+                                <th class="p-3">No. Surat</th>
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3" id="thPengirimPenerima">Pengirim</th>
+                                <th class="p-3">Perihal / Isi Ringkas</th>
+                                <th class="p-3 text-center">Berkas File</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="text-sm divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABEL DAFTAR HADIR (ABSENSI) -->
+            <div id="sectionAbsen" class="hidden bg-white rounded-xl shadow overflow-hidden">
+                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-bold text-gray-700"><i class="fa-solid fa-id-card text-green-700 mr-2"></i> Rekap Daftar Hadir Pegawai</h3>
+                    <input type="text" id="searchAbsen" onkeyup="renderTableAbsen()" placeholder="Cari nama pegawai..." class="px-3 py-1 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-green-600 w-64">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider">
+                                <th class="p-3">No</th>
+                                <th class="p-3">Tanggal</th>
+                                <th class="p-3">Nama Pegawai</th>
+                                <th class="p-3">Jabatan / NIP</th>
+                                <th class="p-3">Jam Masuk</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3">Keterangan</th>
+                                <th class="p-3 text-center">Lampiran/Foto</th>
+                                <th class="p-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="absenTableBody" class="text-sm divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t text-center py-4 text-xs text-gray-500">
+            &copy; 2026 Kantor Dinas Pemberdayaan. Sistem Pengarsipan & Absensi Digital.
+        </footer>
+    </div>
+
+    <!-- MODAL TAMBAH/EDIT SURAT -->
+    <div id="suratModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-lg">Tambah Surat Baru</h3>
+                <button onclick="closeModalSurat()" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveSurat(event)" class="p-6 space-y-4">
+                <input type="hidden" id="suratId">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Kategori Surat</label>
+                    <select id="modalKategori" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                        <option value="masuk">Surat Masuk</option>
+                        <option value="keluar">Surat Keluar</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Nomor Surat</label>
+                    <input type="text" id="modalNoSurat" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Contoh: 005/DIST-AT/III/2026" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Tanggal Surat</label>
+                        <input type="date" id="modalTanggal" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required>
+                    </div>
+                    <div>
+                        <label id="labelInstansi" class="block text-gray-700 text-sm font-bold mb-1">Pengirim / Asal Surat</label>
+                        <input type="text" id="modalInstansi" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Nama Instansi/Dinas" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Perihal / Isi Ringkas</label>
+                    <textarea id="modalPerihal" rows="2" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Uraian singkat perihal surat..." required></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Upload Dokumen (PDF / Scan)</label>
+                    <input type="file" id="modalFileInput" accept="image/*,.pdf,.doc,.docx" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                    <p id="fileHelpText" class="text-xs text-gray-400 mt-1">*Disarankan file < 2MB</p>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModalSurat()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm transition">Batal</button>
+                    <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm transition">Simpan Arsip</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ISI DAFTAR HADIR -->
+    <div id="absenModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="bg-green-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="absenModalTitle" class="font-bold text-lg">Catat Kehadiran Pegawai</h3>
+                <button onclick="closeModalAbsen()" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveAbsen(event)" class="p-6 space-y-4">
+                <input type="hidden" id="absenId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Tanggal Hari Ini</label>
+                        <input type="date" id="absenTanggal" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Jam Masuk</label>
+                        <input type="time" id="absenJam" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Nama Pegawai</label>
+                    <input type="text" id="absenNama" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Nama lengkap pegawai" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Jabatan / Golongan</label>
+                    <input type="text" id="absenJabatan" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Contoh: Staf Distrik / Kasubag" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Status Kehadiran</label>
+                    <select id="absenStatus" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Dinas Luar">Dinas Luar</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Sakit">Sakit</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Keterangan / Catatan</label>
+                    <input type="text" id="absenKeterangan" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Opsional (misal: Rapat di Kabupaten)">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-1">Bukti Foto / Surat (Opsional)</label>
+                    <input type="file" id="absenFileInput" accept="image/*,.pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModalAbsen()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm transition">Batal</button>
+                    <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm transition">Simpan Presensi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT APLIKASI -->
+    <script>
+        const defaultSurat = [
+            { id: 1, kategori: 'masuk', noSurat: '400/12/DIST-AT/2026', tanggal: '2026-03-01', instansi: 'Kantor Bupati Maybrat', perihal: 'Undangan Rencana Pembangunan Musrenbangdistrik', fileName: null, fileData: null },
+            { id: 2, kategori: 'masuk', noSurat: '001/SK-KMP/II/2026', tanggal: '2026-02-15', instansi: 'Kepolisian Sektor Ayamaru', perihal: 'Koordinasi Keamanan Wilayah Distrik', fileName: null, fileData: null },
+            { id: 3, kategori: 'keluar', noSurat: '800/05/DIST-AT/III/2026', tanggal: '2026-03-05', instansi: 'Dinas Pemberdayaan Masyarakat Kampung', perihal: 'Laporan Penyerapan Dana Desa Tahap I', fileName: null, fileData: null }
+        ];
+
+        const defaultAbsen = [
+            { id: 1, tanggal: '2026-03-10', jam: '08:00', nama: 'Yance Kambu', jabatan: 'Kepala Distrik', status: 'Hadir', keterangan: 'Tepat waktu', fileName: null, fileData: null },
+            { id: 2, tanggal: '2026-03-10', jam: '08:15', nama: 'Maria Way', jabatan: 'Staf Sekretariat', status: 'Hadir', keterangan: '-', fileName: null, fileData: null }
+        ];
+
+        let currentUser = null;
+        let activeTab = 'masuk';
+        let suratList = JSON.parse(localStorage.getItem('arsip_distrik')) || defaultSurat;
+        let absenList = JSON.parse(localStorage.getItem('absen_distrik')) || defaultAbsen;
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const err = document.getElementById('loginError');
+
+            if ((u === 'admin_dinas' && p === 'pemberdayaan2026') || (u === 'staf_arsip' && p === 'arsipdinas')) {
+                currentUser = { username: u, role: u === 'admin_dinas' ? 'Administrator' : 'Staf Arsip' };
+                localStorage.setItem('session_distrik', JSON.stringify(currentUser));
+                initApp();
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('session_distrik');
+            currentUser = null;
+            document.getElementById('appPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        window.onload = function() {
+            const savedSession = localStorage.getItem('session_distrik');
+            if (savedSession) {
+                currentUser = JSON.parse(savedSession);
+                initApp();
+            }
+        }
+
+        function initApp() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('appPage').classList.remove('hidden');
+            document.getElementById('userInfo').innerText = `${currentUser.username} (${currentUser.role})`;
+            renderTableSurat();
+            renderTableAbsen();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const btnMasuk = document.getElementById('tabMasukBtn');
+            const btnKeluar = document.getElementById('tabKeluarBtn');
+            const btnAbsen = document.getElementById('tabAbsenBtn');
+
+            const sectionSurat = document.getElementById('sectionSurat');
+            const sectionAbsen = document.getElementById('sectionAbsen');
+            const actionBtnContainer = document.getElementById('actionBtnContainer');
+
+            // Reset Tab Styles
+            btnMasuk.className = btnKeluar.className = btnAbsen.className = "px-4 py-2 rounded-lg font-medium text-sm transition text-gray-600 hover:bg-gray-100";
+
+            if (tab === 'masuk' || tab === 'keluar') {
+                sectionSurat.classList.remove('hidden');
+                sectionAbsen.classList.add('hidden');
+                actionBtnContainer.innerHTML = `
+                    <button onclick="openModalSurat()" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Surat Baru
+                    </button>
+                `;
+                if (tab === 'masuk') btnMasuk.className = "px-4 py-2 rounded-lg font-medium text-sm transition bg-green-700 text-white";
+                if (tab === 'keluar') btnKeluar.className = "px-4 py-2 rounded-lg font-medium text-sm transition bg-green-700 text-white";
+                renderTableSurat();
+            } else if (tab === 'absen') {
+                sectionSurat.classList.add('hidden');
+                sectionAbsen.classList.remove('hidden');
+                btnAbsen.className = "px-4 py-2 rounded-lg font-medium text-sm transition bg-green-700 text-white";
+                actionBtnContainer.innerHTML = `
+                    <button onclick="openModalAbsen()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow transition">
+                        <i class="fa-solid fa-user-check mr-2"></i> Isi Daftar Hadir
+                    </button>
+                `;
+                renderTableAbsen();
+            }
+        }
+
+        function renderTableSurat() {
+            const tbody = document.getElementById('dataTableBody');
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+            const title = document.getElementById('tableTitle');
+            const thPengirimPenerima = document.getElementById('thPengirimPenerima');
+
+            title.innerText = activeTab === 'masuk' ? 'Daftar Surat Masuk' : 'Daftar Surat Keluar';
+            thPengirimPenerima.innerText = activeTab === 'masuk' ? 'Pengirim (Asal Surat)' : 'Penerima (Tujuan Surat)';
+
+            const filtered = suratList.filter(item => 
+                item.kategori === activeTab && 
+                (item.noSurat.toLowerCase().includes(keyword) || item.perihal.toLowerCase().includes(keyword) || item.instansi.toLowerCase().includes(keyword))
+            );
+
+            updateStats();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-400">Belum ada data arsip surat.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            filtered.forEach((item, index) => {
+                let fileBtn = '<span class="text-xs text-gray-400 italic">Tanpa File</span>';
+                if (item.fileData) {
+                    fileBtn = `<a href="${item.fileData}" download="${item.fileName || 'dokumen'}" class="inline-flex items-center text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 font-medium">
+                                <i class="fa-solid fa-paperclip mr-1"></i> Unduh File
+                               </a>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 text-gray-500">${index + 1}</td>
+                        <td class="p-3 font-medium text-gray-800">${item.noSurat}</td>
+                        <td class="p-3 text-gray-600">${item.tanggal}</td>
+                        <td class="p-3 text-gray-700">${item.instansi}</td>
+                        <td class="p-3 text-gray-700">${item.perihal}</td>
+                        <td class="p-3 text-center">${fileBtn}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="editSurat(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 bg-blue-50 rounded" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteSurat(${item.id})" class="text-red-600 hover:text-red-800 text-xs px-2 py-1 bg-red-50 rounded" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderTableAbsen() {
+            const tbody = document.getElementById('absenTableBody');
+            const keyword = document.getElementById('searchAbsen').value.toLowerCase();
+
+            const filtered = absenList.filter(item => 
+                item.nama.toLowerCase().includes(keyword) || item.jabatan.toLowerCase().includes(keyword) || item.status.toLowerCase().includes(keyword)
+            );
+
+            updateStats();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center p-6 text-gray-400">Belum ada riwayat daftar hadir.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            filtered.forEach((item, index) => {
+                let badgeColor = 'bg-green-100 text-green-800';
+                if (item.status === 'Izin') badgeColor = 'bg-yellow-100 text-yellow-800';
+                if (item.status === 'Sakit') badgeColor = 'bg-red-100 text-red-800';
+                if (item.status === 'Dinas Luar') badgeColor = 'bg-blue-100 text-blue-800';
+
+                let fileBtn = '<span class="text-xs text-gray-400 italic">-</span>';
+                if (item.fileData) {
+                    fileBtn = `<a href="${item.fileData}" download="${item.fileName || 'bukti'}" class="inline-flex items-center text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 font-medium">
+                                <i class="fa-solid fa-paperclip mr-1"></i> Bukti
+                               </a>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 text-gray-500">${index + 1}</td>
+                        <td class="p-3 text-gray-600 font-medium">${item.tanggal}</td>
+                        <td class="p-3 font-semibold text-gray-800">${item.nama}</td>
+                        <td class="p-3 text-gray-600">${item.jabatan}</td>
+                        <td class="p-3 text-gray-700">${item.jam} WIT</td>
+                        <td class="p-3 text-center"><span class="px-2 py-1 text-xs font-bold rounded-full ${badgeColor}">${item.status}</span></td>
+                        <td class="p-3 text-gray-600">${item.keterangan || '-'}</td>
+                        <td class="p-3 text-center">${fileBtn}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="editAbsen(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 bg-blue-50 rounded" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteAbsen(${item.id})" class="text-red-600 hover:text-red-800 text-xs px-2 py-1 bg-red-50 rounded" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateStats() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('countMasuk').innerText = suratList.filter(i => i.kategori === 'masuk').length;
+            document.getElementById('countKeluar').innerText = suratList.filter(i => i.kategori === 'keluar').length;
+            document.getElementById('countTotal').innerText = suratList.length;
+            document.getElementById('countHadir').innerText = absenList.filter(i => i.tanggal === todayStr && i.status === 'Hadir').length;
+        }
+
+        // --- HANDLER MODAL SURAT ---
+        function openModalSurat(id = null) {
+            document.getElementById('suratModal').classList.remove('hidden');
+            document.getElementById('modalKategori').value = activeTab === 'keluar' ? 'keluar' : 'masuk';
+            document.getElementById('modalFileInput').value = '';
+            if (!id) {
+                document.getElementById('modalTitle').innerText = 'Tambah Arsip Surat Baru';
+                document.getElementById('suratId').value = '';
+                document.getElementById('modalNoSurat').value = '';
+                document.getElementById('modalTanggal').value = new Date().toISOString().split('T')[0];
+                document.getElementById('modalInstansi').value = '';
+                document.getElementById('modalPerihal').value = '';
+            }
+        }
+
+        function closeModalSurat() { document.getElementById('suratModal').classList.add('hidden'); }
+
+        function saveSurat(e) {
+            e.preventDefault();
+            const id = document.getElementById('suratId').value;
+            const kategori = document.getElementById('modalKategori').value;
+            const noSurat = document.getElementById('modalNoSurat').value;
+            const tanggal = document.getElementById('modalTanggal').value;
+            const instansi = document.getElementById('modalInstansi').value;
+            const perihal = document.getElementById('modalPerihal').value;
+            const fileInput = document.getElementById('modalFileInput');
+
+            const existingItem = id ? suratList.find(i => i.id == id) : null;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processSaveSurat(id, { kategori, noSurat, tanggal, instansi, perihal, fileName: file.name, fileData: e.target.result });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                processSaveSurat(id, { kategori, noSurat, tanggal, instansi, perihal, fileName: existingItem ? existingItem.fileName : null, fileData: existingItem ? existingItem.fileData : null });
+            }
+        }
+
+        function processSaveSurat(id, data) {
+            if (id) {
+                const idx = suratList.findIndex(i => i.id == id);
+                if (idx !== -1) suratList[idx] = { id: Number(id), ...data };
+            } else {
+                const newId = suratList.length > 0 ? Math.max(...suratList.map(i => i.id)) + 1 : 1;
+                suratList.push({ id: newId, ...data });
+            }
+            try {
+                localStorage.setItem('arsip_distrik', JSON.stringify(suratList));
+                closeModalSurat();
+                renderTableSurat();
+            } catch (e) {
+                alert('File terlalu besar! Disarankan file di bawah 2MB.');
+            }
+        }
+
+        function editSurat(id) {
+            const item = suratList.find(i => i.id === id);
+            if (item) {
+                openModalSurat(id);
+                document.getElementById('modalTitle').innerText = 'Edit Arsip Surat';
+                document.getElementById('suratId').value = item.id;
+                document.getElementById('modalKategori').value = item.kategori;
+                document.getElementById('modalNoSurat').value = item.noSurat;
+                document.getElementById('modalTanggal').value = item.tanggal;
+                document.getElementById('modalInstansi').value = item.instansi;
+                document.getElementById('modalPerihal').value = item.perihal;
+            }
+        }
+
+        function deleteSurat(id) {
+            if (confirm('Hapus arsip surat ini?')) {
+                suratList = suratList.filter(i => i.id !== id);
+                localStorage.setItem('arsip_distrik', JSON.stringify(suratList));
+                renderTableSurat();
+            }
+        }
+
+        // --- HANDLER MODAL ABSENSI ---
+        function openModalAbsen(id = null) {
+            document.getElementById('absenModal').classList.remove('hidden');
+            document.getElementById('absenFileInput').value = '';
+            if (!id) {
+                document.getElementById('absenModalTitle').innerText = 'Catat Kehadiran Pegawai';
+                document.getElementById('absenId').value = '';
+                document.getElementById('absenTanggal').value = new Date().toISOString().split('T')[0];
+                
+                const now = new Date();
+                const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('absenJam').value = timeStr;
+                
+                document.getElementById('absenNama').value = '';
+                document.getElementById('absenJabatan').value = '';
+                document.getElementById('absenStatus').value = 'Hadir';
+                document.getElementById('absenKeterangan').value = '';
+            }
+        }
+
+        function closeModalAbsen() { document.getElementById('absenModal').classList.add('hidden'); }
+
+        function saveAbsen(e) {
+            e.preventDefault();
+            const id = document.getElementById('absenId').value;
+            const tanggal = document.getElementById('absenTanggal').value;
+            const jam = document.getElementById('absenJam').value;
+            const nama = document.getElementById('absenNama').value;
+            const jabatan = document.getElementById('absenJabatan').value;
+            const status = document.getElementById('absenStatus').value;
+            const keterangan = document.getElementById('absenKeterangan').value;
+            const fileInput = document.getElementById('absenFileInput');
+
+            const existingItem = id ? absenList.find(i => i.id == id) : null;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processSaveAbsen(id, { tanggal, jam, nama, jabatan, status, keterangan, fileName: file.name, fileData: e.target.result });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                processSaveAbsen(id, { tanggal, jam, nama, jabatan, status, keterangan, fileName: existingItem ? existingItem.fileName : null, fileData: existingItem ? existingItem.fileData : null });
+            }
+        }
+
+        function processSaveAbsen(id, data) {
+            if (id) {
+                const idx = absenList.findIndex(i => i.id == id);
+                if (idx !== -1) absenList[idx] = { id: Number(id), ...data };
+            } else {
+                const newId = absenList.length > 0 ? Math.max(...absenList.map(i => i.id)) + 1 : 1;
+                absenList.push({ id: newId, ...data });
+            }
+            try {
+                localStorage.setItem('absen_distrik', JSON.stringify(absenList));
+                closeModalAbsen();
+                renderTableAbsen();
+            } catch (e) {
+                alert('File foto/bukti terlalu besar!');
+            }
+        }
+
+        function editAbsen(id) {
+            const item = absenList.find(i => i.id === id);
+            if (item) {
+                openModalAbsen(id);
+                document.getElementById('absenModalTitle').innerText = 'Edit Presensi Pegawai';
+                document.getElementById('absenId').value = item.id;
+                document.getElementById('absenTanggal').value = item.tanggal;
+                document.getElementById('absenJam').value = item.jam;
+                document.getElementById('absenNama').value = item.nama;
+                document.getElementById('absenJabatan').value = item.jabatan;
+                document.getElementById('absenStatus').value = item.status;
+                document.getElementById('absenKeterangan').value = item.keterangan;
+            }
+        }
+
+        function deleteAbsen(id) {
+            if (confirm('Hapus catatan kehadiran ini?')) {
+                absenList = absenList.filter(i => i.id !== id);
+                localStorage.setItem('absen_distrik', JSON.stringify(absenList));
+                renderTableAbsen();
+            }
+        }
+    </script>
+</body>
+</html>
